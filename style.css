@@ -117,8 +117,8 @@ a:visited {
 
 .workout__edit {
 	position: absolute;
-	right: 3.25rem;
-	top: 1.5rem;
+	right: 1.25rem;
+	top: 3.5rem;
 
 	z-index: 1;
 }
@@ -126,6 +126,19 @@ a:visited {
 .workout__edit svg {
 	height: 1.8rem;
 	width: 1.8rem;
+}
+
+.workout__delete {
+	position: absolute;
+	right: 1.25rem;
+	top: 1rem;
+
+	z-index: 1;
+}
+
+.workout__delete svg {
+	height: 1.5rem;
+	width: 1.5rem;
 }
 
 .form {

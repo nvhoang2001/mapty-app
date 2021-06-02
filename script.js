@@ -222,12 +222,15 @@ class App {
 		this._setLocalStorage();
 	}
 
-	_renderWorkout(workout, element) {
-		let html = `
-			<li class="workout workout--${workout.name}" data-id="${workout.id}">
-				<h2 class="workout__title">${workout.description}</h2>
+	_renderWorkout(workout, isUpdate) {
+		let html = `<li class="workout workout--${workout.name}" data-id="${workout.id}">`;
+		let innerHTML = `
+			<h2 class="workout__title">${workout.description}</h2>
 				<div class="workout__edit">
 					<svg><use xlink:href="edit.svg#icon-edit"></use></svg>
+				</div>
+				<div class="workout__delete">
+					<svg><use xlink:href="edit.svg#icon-delete"></use></svg>
 				</div>
 				<div class="workout__details">
 				<span class="workout__icon">${workout.name === "running" ? "🏃‍♂️" : "🚴‍♀️"}</span>
@@ -242,7 +245,7 @@ class App {
 		`;
 
 		if (workout.name === "running") {
-			html += `
+			innerHTML += `
 			<div class="workout__details">
 				<span class="workout__icon">⚡️</span>
 				<span class="workout__value">${workout.pace.toFixed(1)}</span>
@@ -253,10 +256,9 @@ class App {
 				<span class="workout__value">${workout.cadence}</span>
 				<span class="workout__unit">spm</span>
 			</div>
-        </li>
 		`;
 		} else if (workout.name === "cycling") {
-			html += `
+			innerHTML += `
 			<div class="workout__details">
 				<span class="workout__icon">⚡️</span>
 				<span class="workout__value">${workout.speed.toFixed(1)}</span>
@@ -267,13 +269,13 @@ class App {
 				<span class="workout__value">${workout.elevationGain}</span>
 				<span class="workout__unit">m</span>
 			</div>
-        </li>
 			`;
 		}
-		if (!element) {
+		if (!isUpdate) {
+			html += innerHTML + "</li>";
 			form.insertAdjacentHTML("afterend", html);
 		} else {
-			element.outerHTML = html;
+			return innerHTML;
 		}
 	}
 
@@ -318,6 +320,8 @@ class App {
 		// Edit workout option
 		if (e.target.closest(".workout__edit")) {
 			this._editWorkout(workoutIndex, workoutEl);
+		} else {
+			this._hideForm();
 		}
 
 		this.#map.setView(workout.coords, this.#mapZoomLevel, {
@@ -354,6 +358,16 @@ class App {
 			this._createPopup(this.#marker[workoutIndex], workout);
 		};
 
+		const reRenderWoukout = () => {
+			workoutElement.innerHTML = this._renderWorkout(
+				this.#workouts[workoutIndex],
+				true
+			);
+			workoutElement.className = `workout workout--${
+				this.#workouts[workoutIndex].name
+			}`;
+		};
+
 		const editFormHandler = (e) => {
 			if (e.key !== "Enter") return;
 
@@ -369,8 +383,8 @@ class App {
 				time,
 				workoutId
 			);
-
-			this._renderWorkout(this.#workouts[workoutIndex], workoutElement);
+			// workout workout--${workout.name}
+			reRenderWoukout();
 			rerenderWorkoutMaker(this.#workouts[workoutIndex]);
 			form.removeEventListener("keydown", editFormHandler);
 			this._setLocalStorage();
