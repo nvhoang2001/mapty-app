@@ -84,6 +84,8 @@ class App {
 	#mapZoomLevel = 13;
 	#mapEvent;
 	#workouts = [];
+	#marker = [];
+
 	constructor() {
 		// Get user's position
 		this._getPosition();
@@ -154,7 +156,7 @@ class App {
 			.classList.toggle("form__row--hidden");
 	}
 
-	_createWorkout(latlng, workoutId) {
+	_createWorkout(latlng, time, workoutId) {
 		const validInputs = (...inputs) =>
 			inputs.every((inp) => Number.isFinite(inp));
 		const allPositive = (...inputs) => inputs.every((inp) => inp > 0);
@@ -193,6 +195,7 @@ class App {
 		// If update workout
 		if (workoutId) {
 			workout.id = workoutId;
+			workout.date = time;
 		}
 
 		return workout;
@@ -275,8 +278,14 @@ class App {
 	}
 
 	_renderWorkoutMarker(workout) {
-		L.marker(workout.coords)
-			.addTo(this.#map)
+		const marker = L.marker(workout.coords).addTo(this.#map);
+		this.#marker.push(marker);
+		this._createPopup(marker, workout);
+	}
+
+	_createPopup(marker, workout) {
+		marker
+			.closePopup()
 			.bindPopup(
 				L.popup({
 					maxWidth: 250,
@@ -341,6 +350,10 @@ class App {
 	}
 
 	_editWorkout(workoutIndex, workoutElement) {
+		const rerenderWorkoutMaker = (workout) => {
+			this._createPopup(this.#marker[workoutIndex], workout);
+		};
+
 		const editFormHandler = (e) => {
 			if (e.key !== "Enter") return;
 
@@ -348,14 +361,17 @@ class App {
 			e.stopImmediatePropagation();
 
 			const workoutPos = this.#workouts[workoutIndex].coords,
-				workoutId = this.#workouts[workoutIndex].id;
+				workoutId = this.#workouts[workoutIndex].id,
+				time = this.#workouts[workoutIndex].date;
 
 			this.#workouts[workoutIndex] = this._createWorkout(
 				workoutPos,
+				time,
 				workoutId
 			);
 
 			this._renderWorkout(this.#workouts[workoutIndex], workoutElement);
+			rerenderWorkoutMaker(this.#workouts[workoutIndex]);
 			form.removeEventListener("keydown", editFormHandler);
 			this._setLocalStorage();
 
