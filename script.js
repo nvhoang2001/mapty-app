@@ -1,6 +1,6 @@
 /* 
 	Still incomplete:
-		+ Edit a workout
+		+ Edit a workout											DONE!
 		+ Delete a workout
 		+ Delete all workout UI
 		+ Sort workouts by a certain fields
@@ -154,12 +154,10 @@ class App {
 			.classList.toggle("form__row--hidden");
 	}
 
-	_newWorkout(e) {
-		const { lat, lng } = this.#mapEvent.latlng;
+	_createWorkout(latlng, workoutId) {
 		const validInputs = (...inputs) =>
 			inputs.every((inp) => Number.isFinite(inp));
 		const allPositive = (...inputs) => inputs.every((inp) => inp > 0);
-		e.preventDefault();
 
 		// Get data from form
 		const type = inputType.value;
@@ -177,7 +175,7 @@ class App {
 				return alert("Inputs must be a positive number!");
 			}
 
-			workout = new Running([lat, lng], distance, duration, cadence);
+			workout = new Running(latlng, distance, duration, cadence);
 		}
 
 		// If workout is cycling, create a new cycling object
@@ -189,8 +187,22 @@ class App {
 			) {
 				return alert("Inputs must be a positive number!");
 			}
-			workout = new Cycling([lat, lng], distance, duration, elevation);
+			workout = new Cycling(latlng, distance, duration, elevation);
 		}
+
+		// If update workout
+		if (workoutId) {
+			workout.id = workoutId;
+		}
+
+		return workout;
+	}
+
+	_newWorkout(e) {
+		e.preventDefault();
+
+		const { lat, lng } = this.#mapEvent.latlng;
+		const workout = this._createWorkout([lat, lng]);
 		// Add new object to workout array
 		this.#workouts.push(workout);
 
@@ -207,10 +219,13 @@ class App {
 		this._setLocalStorage();
 	}
 
-	_renderWorkout(workout) {
+	_renderWorkout(workout, element) {
 		let html = `
 			<li class="workout workout--${workout.name}" data-id="${workout.id}">
 				<h2 class="workout__title">${workout.description}</h2>
+				<div class="workout__edit">
+					<svg><use xlink:href="edit.svg#icon-edit"></use></svg>
+				</div>
 				<div class="workout__details">
 				<span class="workout__icon">${workout.name === "running" ? "🏃‍♂️" : "🚴‍♀️"}</span>
 				<span class="workout__value">${workout.distance}</span>
@@ -252,8 +267,11 @@ class App {
         </li>
 			`;
 		}
-
-		form.insertAdjacentHTML("afterend", html);
+		if (!element) {
+			form.insertAdjacentHTML("afterend", html);
+		} else {
+			element.outerHTML = html;
+		}
 	}
 
 	_renderWorkoutMarker(workout) {
@@ -282,10 +300,17 @@ class App {
 			return;
 		}
 
-		const workout = this.#workouts.find(
+		const workoutIndex = this.#workouts.findIndex(
 			(work) => work.id === workoutEl.dataset.id
 		);
-		// console.log(workout);
+
+		const workout = this.#workouts[workoutIndex];
+
+		// Edit workout option
+		if (e.target.closest(".workout__edit")) {
+			this._editWorkout(workoutIndex, workoutEl);
+		}
+
 		this.#map.setView(workout.coords, this.#mapZoomLevel, {
 			animate: true,
 			pan: {
@@ -313,6 +338,33 @@ class App {
 		this.#workouts.forEach((work) => {
 			this._renderWorkout(work);
 		});
+	}
+
+	_editWorkout(workoutIndex, workoutElement) {
+		const editFormHandler = (e) => {
+			if (e.key !== "Enter") return;
+
+			e.preventDefault();
+			e.stopImmediatePropagation();
+
+			const workoutPos = this.#workouts[workoutIndex].coords,
+				workoutId = this.#workouts[workoutIndex].id;
+
+			this.#workouts[workoutIndex] = this._createWorkout(
+				workoutPos,
+				workoutId
+			);
+
+			this._renderWorkout(this.#workouts[workoutIndex], workoutElement);
+			form.removeEventListener("keydown", editFormHandler);
+			this._setLocalStorage();
+
+			this._hideForm();
+		};
+
+		form.classList.remove("hidden");
+
+		form.addEventListener("keydown", editFormHandler);
 	}
 
 	reset() {
