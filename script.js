@@ -2,7 +2,7 @@
 	Still incomplete:
 		+ Edit a workout											DONE!
 		+ Delete a workout											DONE!
-		+ Delete all workout UI
+		+ Delete all workout UI										DONE!
 		+ Sort workouts by a certain fields
 		+ Re-build Running and Cycling objects from localStorage
 		+ Create error and confirmation messages
@@ -24,6 +24,7 @@ const inputDistance = document.querySelector(".form__input--distance");
 const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
+const resetBtn = document.querySelector(".reset__btn");
 
 class Workout {
 	constructor(coords, distance, duration, name) {
@@ -102,6 +103,8 @@ class App {
 			"click",
 			this._moveToPopup.bind(this)
 		);
+
+		resetBtn.addEventListener("click", this.reset);
 	}
 
 	_getPosition() {
@@ -227,10 +230,10 @@ class App {
 		let innerHTML = `
 			<h2 class="workout__title">${workout.description}</h2>
 				<div class="workout__edit">
-					<svg><use xlink:href="edit.svg#icon-edit"></use></svg>
+					<svg><use xlink:href="icons.svg#icon-edit"></use></svg>
 				</div>
 				<div class="workout__delete">
-					<svg><use xlink:href="edit.svg#icon-delete"></use></svg>
+					<svg><use xlink:href="icons.svg#icon-delete"></use></svg>
 				</div>
 				<div class="workout__details">
 				<span class="workout__icon">${workout.name === "running" ? "🏃‍♂️" : "🚴‍♀️"}</span>

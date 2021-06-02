@@ -47,6 +47,8 @@ a:visited {
 	padding: 3rem 5rem 4rem 5rem;
 	display: flex;
 	flex-direction: column;
+
+	position: relative;
 }
 
 .logo {
@@ -221,6 +223,34 @@ a:visited {
 	color: var(--color-light--2);
 }
 
+.reset {
+	position: fixed;
+	top: 10rem;
+	left: 30%;
+}
+
+/* 
+	Button animation author: Temani Afif 
+	Contact: https://dev.to/afif
+*/
+
+.reset__btn {
+	--border-color: white;
+	--border-thick: 0.2rem;
+
+	padding: 1rem 2.75rem;
+	color: var(--color-light--2);
+	background: linear-gradient(var(--border-color) 0 0) 50% var(--d, 0px),
+		linear-gradient(var(--border-color) 0 0) var(--d, 0px) 50%,
+		linear-gradient(var(--border-color) 0 0) 50% calc(100% - var(--d, 0px)),
+		linear-gradient(var(--border-color) 0 0) calc(100% - var(--d, 0px)) 50%;
+	background-size: 100% var(--border-thick), var(--border-thick) 100%;
+	background-repeat: no-repeat;
+	transition: 0.5s;
+}
+.reset__btn:hover {
+	--d: 0.5rem;
+}
 /* MAP */
 #map {
 	flex: 1;
