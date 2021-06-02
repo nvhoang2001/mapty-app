@@ -141,6 +141,10 @@ a:visited {
 	width: 1.5rem;
 }
 
+.workout__delete:hover svg {
+	fill: var(--color-light--2);
+}
+
 .form {
 	background-color: var(--color-dark--2);
 	border-radius: 5px;

@@ -1,7 +1,7 @@
 /* 
 	Still incomplete:
 		+ Edit a workout											DONE!
-		+ Delete a workout
+		+ Delete a workout											DONE!
 		+ Delete all workout UI
 		+ Sort workouts by a certain fields
 		+ Re-build Running and Cycling objects from localStorage
@@ -84,7 +84,7 @@ class App {
 	#mapZoomLevel = 13;
 	#mapEvent;
 	#workouts = [];
-	#marker = [];
+	#markers = [];
 
 	constructor() {
 		// Get user's position
@@ -281,7 +281,7 @@ class App {
 
 	_renderWorkoutMarker(workout) {
 		const marker = L.marker(workout.coords).addTo(this.#map);
-		this.#marker.push(marker);
+		this.#markers.push(marker);
 		this._createPopup(marker, workout);
 	}
 
@@ -324,6 +324,10 @@ class App {
 			this._hideForm();
 		}
 
+		if (e.target.closest(".workout__delete")) {
+			this._deleteWorkout(workoutEl, workoutIndex);
+		}
+
 		this.#map.setView(workout.coords, this.#mapZoomLevel, {
 			animate: true,
 			pan: {
@@ -355,7 +359,7 @@ class App {
 
 	_editWorkout(workoutIndex, workoutElement) {
 		const rerenderWorkoutMaker = (workout) => {
-			this._createPopup(this.#marker[workoutIndex], workout);
+			this._createPopup(this.#markers[workoutIndex], workout);
 		};
 
 		const reRenderWoukout = () => {
@@ -395,6 +399,14 @@ class App {
 		form.classList.remove("hidden");
 
 		form.addEventListener("keydown", editFormHandler);
+	}
+
+	_deleteWorkout(element, workoutIndex) {
+		element.remove();
+		this.#workouts.splice(workoutIndex, 1);
+		this.#map.removeLayer(this.#markers[workoutIndex]);
+		this.#markers.splice(workoutIndex, 1);
+		this._setLocalStorage();
 	}
 
 	reset() {
