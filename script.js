@@ -1,17 +1,3 @@
-/* 
-	Still incomplete:
-		+ Edit a workout											DONE!
-		+ Delete a workout											DONE!
-		+ Delete all workout UI										DONE!
-		+ Sort workouts by a certain fields
-		+ Re-build Running and Cycling objects from localStorage
-		+ Create error and confirmation messages
-
-		* Position map to show all workouts
-		* Draw lines and shapes instead of just points
-		* Geocode location from coordinates
-		* Display weather data for workout time and place
-*/
 "use strict";
 
 // prettier-ignore
